@@ -1,0 +1,14 @@
+kurthi 66636663   0 6421816 1877816920 student
+Sinchan 61-62-63-64-65-66 6363667800 Sinchan@gmail.com 25 3 2005 student
+sinchan 61-62-63-64-65-66 6363667800 fjfb@gmail.com 25 3 2005 teacher
+karthik 61-62-63-64-65-66 6363667800 ssjsj@gmail.com 25 3 2005 student
+karthi 61-62-63-65-66 6363667800 sinch@gmail.com 25 3 2005 student
+sinch 61-62-63-65-66 6363667800 sinch@gmail.com 25 3 2005 student
+sinchan 61-62-63 6363667800 sinch@gmail.com 25 3 2005 student
+sinchan 61-62-63 6363667800 sinchan@gmail.com 25 3 2005 student
+sinchan 61-62-63 6363667800 sinchan@gmail.com 25 3 2005 student
+vidya 61-62-63 636344557788 vidya@gmail.com 25 3 2005 teacher
+Pooja 61-62-63 6363667800 pooj@gmail.com 25 6 2004 student
+pooja 61-62-63 6363 pooja@gmail.com 25 3 2005 student
+sinchan 61-62-63 6363667800 sinch@gmail.com 25 3 2005 student
+sinchan  6363667800 sinch@gmail.com 25 3 2005 student

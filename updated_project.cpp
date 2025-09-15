@@ -1,791 +1,777 @@
-#include<bits/stdc++.h>
-#include<windows.h>
-#include<fstream>
-#include<conio.h>
-#include<regex>
+#include <bits/stdc++.h>
+#include <windows.h>
+#include <fstream>
+#include <conio.h>
 using namespace std;
 
-class login_system
+class PortalSystem
 {
 private:
-    string fname, password, name, pass, date, month, year, email, number, enc;
+    string password, email, number, role, date, month, year;
+    string loggedInUser;                                                                      // Stores currently logged-in username
+    string pass;                                                                              // stores entered password temporarily
+    vector<string> defaultSubjects = {"Web Development", "NLP", "Cloud", "Machine Learning"}; // Default subjects
 
-    void waiting()
+    void waiting(int times = 10)
     {
-        for(int i = 0; i < 10; i++)
+        for (int i = 0; i < times; i++)
         {
-            Sleep(200);
-            cout<<"..";
+            Sleep(120);
+            cout << ".";
         }
+        cout << endl;
     }
 
-    string encryption(string pw)
+    string encryption(const string &pw)
     {
-        vector<int>encrypted_password(pw.length(),0);
-        string enc_pass="";
-        for (int i = 0; i < pw.length(); i++)
+        string enc_pass;
+        for (size_t i = 0; i < pw.size(); i++)
         {
-            encrypted_password[i] = pw[i] + 12;
+            enc_pass += to_string((int)pw[i] + 12);
+            if (i + 1 < pw.size())
+                enc_pass += '-';
         }
-        for(auto i:encrypted_password)enc_pass+=to_string(i);
         return enc_pass;
     }
 
-    string decrypt(string enc_pass)
+    string decrypt(const string &enc_pass)
     {
-        string decrypted_pass = "";
-        int i = 0;
-        while (i < enc_pass.length()) {
-            int num = (enc_pass[i] - '0') * 10 + (enc_pass[i + 1] - '0');
-            num -= 12;
-            decrypted_pass += static_cast<char>(num);
-            i += 2;
+        stringstream ss(enc_pass);
+        string token, result;
+        while (getline(ss, token, '-'))
+        {
+            if (token.empty())
+                continue;
+            int num = stoi(token) - 12;
+            result.push_back((char)num);
         }
-        return decrypted_pass;
+        return result;
     }
 
-    bool isLeap(int year)
-    {
-        bool x= false;
-        if (year % 4 == 0)
-            x=true;
-        if (year % 100 == 0)
-            x=false;
-        if (year % 400 == 0)
-            x=true;
-        return x;
-    }
-
-    bool validNum(string s)
-    {
-        const regex pattern("(6|7|8|9)?[0-9]{9}");
-        if(regex_match(s, pattern))
-            return true;
-        else
-            return false;
-    }
-
-    bool validMail(string email)
+    bool validMail(const string &email)
     {
         int At = -1, Dot = -1;
-        for (int i = 0; i < email.length(); i++)
+        for (int i = 0; i < (int)email.length(); i++)
         {
             if (email[i] == '@')
-            {
                 At = i;
-            }
             else if (email[i] == '.')
             {
                 Dot = i;
                 break;
             }
         }
-//        cout<<At<<","<<Dot<<endl;
-        if (At == -1 || Dot == -1 || Dot-At<=1 || Dot>=email.length()-1 || email.length()<=4)
-            return false;
-        return true;
-    }
-
-    bool valCode(string s)
-    {
-        if(s[0]=='+')s=s.substr(1,s.length());
-        vector<string> countryCodes = {
-            "93","355","213","1-684","376","244","1-264","672","1-268","54","374","297","61","43","994","1-242","973","880","1-246",
-            "375","32","501","229","1-441","975","591","387","267","55","246","673","359","226","257","855","237","1","238","1-345",
-            "236","235","56","86","53","61","57","269","243","242","682","506","225","385","53","357","420","45","253","1-767","1-809",
-            "1-829","670","593","20","503","240","291","372","251","500","298","679","358","33","594","689","262","241","220","995",
-            "49","233","350","44","30","299","1-473","590","1-671","502","224","245","592","509","672","39","504","852","36","354",
-            "91","62","98","964","353","972","39","1-876","81","962","7","254","686","850","82","965","996","856","371","961","266",
-            "231","218","423","370","352","853","389","261","265","60","960","223","356","692","596","222","230","269","52","691",
-            "373","377","976","1-664","212","258","95","264","674","977","31","599","687","64","505","227","234","683","672","1-670","47",
-            "968","92","680","970","507","675","595","51","63","64","48","351","1-787","1-939","974","262","40","7","250","290","1-869",
-            "1-758","508","1-784","685","378","239","966","381","221","248","232","65","421","386","677","252","27","500","34","94","249",
-            "597","47","268","46","41","963","886","992","255","66","228","690","676","1-868","216","90","993","1-649","688","256","380",
-            "971","44","1","246","598","998","678","418","58","84","1-284","1-340","681","212","967","243","260","263"
-        };
-        for(auto i:countryCodes)if(i==s)return true;
-        return false;
+        return !(At == -1 || Dot == -1 || Dot - At <= 1 || Dot >= email.length() - 1 || email.length() <= 4);
     }
 
 public:
     void homepage();
-    void menu();
+    void createAccount();
+    void login();
+    void studentMenu();
+    void teacherMenu();
     void details();
-    void modify();
-    void change_password();
-    void delete_account();
+    void changePassword();
     void logout();
-    void exit();
+
+    // Marks & Attendance
+    void viewMarks();
+    void updateMarks();
+    void deleteMarks();
+    void viewAttendance();
+    void manageAttendance();
+    void deleteAttendance();
+    void searchStudent();
+    void generateReport();
 };
-void login_system::homepage()
-{
-        system("cls");
-        cout<<"\n\t     ____________________________________________________________________________________________"<<endl;
-        cout<<"\t    |                                                  \t\t\t\t\t        |";
-        cout<<"\n\t    |\t\t\t              CREATE, LOGIN & AUTHENTICATION                            |"<<endl;
-        cout<<"\t    |                                                  \t\t\t\t\t        |";
-        cout<<"\n\t    |___________________________________________________________________________________________|"<<endl<<endl<<endl;
-        cout<<"\n\t\t\t\t\t ______________________________________\n";
-        cout<<"\t\t\t\t\t|                                      |";
-        cout<<"\n\t\t\t\t\t|                HOMEPAGE              |";
-        cout<<"\n\t\t\t\t\t|______________________________________|";
-        cout<<"\n\t\t\t\t\t|                                      |";
-        cout<<"\n\t\t\t\t\t|Kindly select an option below:        |";
-        cout<<"\n\t\t\t\t\t|1. Create Account                     |";
-        cout<<"\n\t\t\t\t\t|2. Login                              |";
-        cout<<"\n\t\t\t\t\t|3. List of All Accounts               |";
-        cout<<"\n\t\t\t\t\t|4. Search Account By Name             |";
-        cout<<"\n\t\t\t\t\t|5. Exit                               |"<<endl;
-        cout<<"\t\t\t\t\t|______________________________________|"<<endl<<endl;
-        char x;
-        cout<<"\t\t\t\t\t-> ";
-        cin>>x;
-        if(x == '1')
-        {
-            system("cls");
-            cout<<"\n\t\t\t\t ________________________________________\n";
-            cout<<"\t\t\t\t|                                        |";
-            cout<<"\n\t\t\t\t|               Create Account           |"<<endl;
-            cout<<"\t\t\t\t|________________________________________|"<<endl<<endl;
-            cout<<"\t\t\t\t\tEnter User Name: ";
-            cin>>fname;
-            cout<<endl<<"\t\t\t\t\tEnter your Date of Birth-"<<endl;
-            dobd:
-                int d;
-                cout<<"\t\t\t\t\tDay : ";
-                cin>>d;
-                if(d<1||d>31)
-                {
-                    cout<<"\t\t\t\t\tReminder: You are a Human! Enter a valid Day."<<endl;
-                    goto dobd;
-                }
-                else
-                {
-                    date=to_string(d);
-                }
-            dobm:
-                int m;
-                cout<<"\t\t\t\t\tMonth : ";
-                cin>>m;
-                if(m<1||m>12)
-                {
-                    cout<<"\t\t\t\t\tReminder: You are a Human! Enter a valid Month."<<endl<<endl;
-                    goto dobm;
-                }
-                else if(d>29 && m==2)
-                {
-                    cout<<"\t\t\t\t\tReminder: Are you sure you born in Feb?\n\t\t\t\t\tRewrite your DOB"<<endl<<endl;
-                    goto dobd;
-                }
-                else
-                {
-                    month=to_string(m);
-                }
-            doby:
-                int y;
-                cout<<"\t\t\t\t\tYear :  ";
-                cin>>y;
-                if(y<1950||y>2024)
-                {
-                    cout<<"\t\t\t\t\tReminder: You are a Human! Enter a valid Year.\n\t\t\t\t\tLet's Begin Again!"<<endl<<endl;
-                    goto doby;
-                }
-                else if(!isLeap(y)&&m==2&&d>28)
-                {
-                    cout<<"\t\t\t\t\tReminder: You are a Human! Be logical.\n\t\t\t\t\tLet's Begin Again!"<<endl<<endl;
-                    goto dobd;
-                }
-                else
-                {
-                    year=to_string(y);
-                }
-            cout<<endl<<"\t\t\t\t\tEnter your Contact Details: "<<endl;
-            cc:
-                cout<<"\t\t\t\t\tEnter Country Code : ";
-                cin>>number;
-                if(!valCode(number))
-                {
-                    cout<<"\t\t\t\t\tPlease Enter a Valid Code."<<endl<<endl;
-                    goto cc;
-                }
-            num:
-                string digit;
-                cout<<"\t\t\t\t\tEnter Mobile Number : ";
-                cin>>digit;
-                if(digit.length()!=10)
-                {
-                    cout<<"\t\t\t\t\tEntered "<<digit.length()<<" Digits. Expecting 10, try again!"<<endl<<endl;
-                    goto num;
-                }
-                else if(!validNum(digit))
-                {
-                    cout<<"\t\t\t\t\tPlease enter a valid phone number!"<<endl<<endl;
-                    goto num;
-                }
-                else
-                {
-                    number+=digit;
-                }
-            mail:
-                cout<<endl<<"\t\t\t\t\tEnter Email Address: "<<endl<<"\t\t\t\t\t";
-                cin>>email;
-                if(!validMail(email))
-                {
-                    cout<<"\t\t\t\t\tPlease Re-enter a Valid Email Address"<<endl<<endl;
-                    goto mail;
-                }
-            cout<<endl<<"\t\t\t\t\tEnter password: "<<endl<<"\t\t\t\t\t";
-            char ch;
-            password = "";
-            ch = _getch();
-            while (ch != 13)
-            {
-                password.push_back(ch);
-                cout << '*';
-                ch = _getch();
-            }
-            enc=encryption(password);
-            fstream file;
-            file.open("files", ios::app | ios::out);
-            if(!file)
-            {
-                cout<<"\t\t\t\t\tRegistration failed"<<endl<<"Try again later"<<endl;
-            }
-            else
-            {
-                file<<fname<<" "<<enc<<" "<<number<<" "<<email<<" "<<date<<" "<<month<<" "<<year<<"\n";
-                cout<<"\n\n\t\t\t\t\tAccount Created Successfully."<<endl<<"\n\t\t\t\t\t";
-                password="";
-                enc="";
-                file.close();
-            }
-            system("pause");
-            homepage();
-        }
-        else if(x == '2')
-        {
-            system("cls");
-            cout<<"\n\t\t\t\t\t ______________________________________\n";
-            cout<<"\t\t\t\t\t|                                      |";
-            cout<<"\n\t\t\t\t\t|               LOGIN PAGE             |";
-            cout<<"\n\t\t\t\t\t|______________________________________|"<<endl<<endl;
-            fstream file;
-            file.open("files", ios::in);
-            if(!file)
-            {
-                cout<<"\t\t\t\t\t\tError! File not found"<<endl;
-                file.close();
-                cout<<"\n\t\t\t\t\t\t";
-                system("pause");
-                file.close();
-                homepage();
-            }
-            else
-            {
-                char ch;
-                name = "";
-                pass = "";
-                int flag = 0;
-                cout<<"\t\t\t\t\tEnter User_Name : ";
-                cin>>name;
-                cout<<"\t\t\t\t\tEnter Password : ";
-                ch = _getch();
-                while(ch != 13)
-                {
-                    pass.push_back(ch);
-                    cout<<'*';
-                    ch = _getch();
-                }
-                file>>fname>>password>>number>>email>>date>>month>>year;
-                string dec_password = decrypt(password);
-                while(!file.eof())
-                {
-                    if(name == fname && pass == dec_password)
-                    {
-                        flag = 1;
-                        break;
-                    }
-                    file>>fname>>password>>number>>email>>date>>month>>year;
-                    dec_password = decrypt(password);
-                }
-                cout<<"\n\t\t\t\t\tVerifying User Data"<<endl<<"\t\t\t\t\t";
-                waiting();
-                if(flag == 1)
-                {
-                    cout<<endl<<endl<<"\t\t\t\t\tLogin Successful";
-                    file.close();
-                    Sleep(666);
-                    menu();
-                }
-                else if(flag == 0)
-                {
-                    cout<<endl<<endl<<"\t\t\t\t\tNo account exists with given credentials."<<endl;
-                    cout<<"\n\t\t\t\t\t";
-                    system("pause");
-                    file.close();
-                    homepage();
-                }
-            }
-        }
-        else if(x == '3')
-        {
-            int x = 1;
-            system("cls");
-            cout<<"\n\t\t\t\t ______________________________________________"<<endl;
-            cout<<"\t\t\t\t|                                              |";
-            cout<<"\n\t\t\t\t|             LIST OF ALL ACCOUNTS             |"<<endl;
-            cout<<"\t\t\t\t|______________________________________________|"<<endl<<endl;
-            fstream file;
-            file.open("files", ios::in);
-            if(!file)
-            {
-                cout<<"\t\t\t\t\t Error! File not found"<<endl;
-            }
-            else
-            {
-                file>>fname>>password>>number>>email>>date>>month>>year;
-                while(!file.eof())
-                {
-                    Sleep(66);
-                    cout<<"\t\t\t\t\t\t ______________"<<endl;
-                    cout<<"\t\t\t\t\t\t|              |"<<endl;
-                    cout<<"\t\t\t\t\t\t|   ACCOUNT "<<x++<<"  |"<<endl;
-                    cout<<"\t\t\t\t\t\t|______________|"<<endl;
-                    cout<<endl<<"\t\t\t\t\t 1. User_name = "<<fname<<endl;
-                    cout<<"\t\t\t\t\t 2. Contact = "<<number<<endl;
-                    cout<<"\t\t\t\t\t 3. Email = "<<email<<endl;
-                    cout<<"\t\t\t\t\t 4. Date of Birth = "<<date<<"/"<<month<<"/"<<year<<endl;
-                    cout<<"\t\t\t\t\t ------------------------------------"<<endl<<endl;
-                    file>>fname>>password>>number>>email>>date>>month>>year;
-                }
-                cout<<"\t\t\t\t\t Reached at end of the File"<<endl;
-            }
-            file.close();
-            cout<<"\t\t\t\t\t ";
-            system("pause");
-            homepage();
-        }
-        else if(x == '4')
-        {
-            system("cls");
-            cout<<"\n\t\t\t\t ___________________________________________\n";
-            cout<<"\t\t\t\t|                                           |";
-            cout<<"\n\t\t\t\t|                SEARCH ACCOUNT             |"<<endl;
-            cout<<"\t\t\t\t|___________________________________________|"<<endl<<endl;
-            cout<<"\t\t\t\t\tEnter User_Name: ";
-            cin>>name;
-            int found = 0;
-            fstream file;
-            file.open("files", ios::in);
-            file>>fname>>password>>number>>email>>date>>month>>year;
-            while(!file.eof())
-            {
-                if(name == fname)
-                {
-                    Sleep(66);
-                    cout<<endl<<"\t\t\t\t\t1. User_Name = "<<fname<<endl;
-                    cout<<"\t\t\t\t\t2. Email = "<<email<<endl;
-                    cout<<"\t\t\t\t\t3. Contact = "<<number<<endl;
-                    cout<<"\t\t\t\t\t4. Date of Birth = "<<date<<"/"<<month<<"/"<<year<<endl<<endl;
-                    cout<<"\t\t\t\t\t------------------------------------"<<endl<<endl;
-                    found++;
-                }
-                file>>fname>>password>>number>>email>>date>>month>>year;
-            }
-            if(found == 0)
-            {
-                cout<<endl<<"\t\t\t\t\tNo account exist with ["<<name<<"] username ."<<endl<<endl;
-            }
-            file.close();
-            cout<<"\t\t\t\t\t";
-            system("pause");
-            homepage();
-        }
-        else if(x == '5')
-        {
-            _exit(0);
-        }
-        else
-        {
-            cout<<"\t\t\t\t\tInvalid Parameter, Try Again.";
-            Sleep(636);
-            homepage();
-        }
-}
-void login_system::menu()
-    {
-        system("cls");
-        cout<<"\n\t\t\t\t __________________________________________________\n";
-        cout<<"\t\t\t\t|                                                  |";
-        cout<<"\n\t\t\t\t|                 ACCOUNT MANAGMENT                |"<<endl;
-        cout<<"\t\t\t\t|__________________________________________________|"<<endl<<endl<<endl;
-        cout<<"\t\t\t\t\tKindly select an option below:"<<endl<<endl;
-        cout<<"\t\t\t\t\t1. Account Details"<<endl<<endl;
-        cout<<"\t\t\t\t\t2. Modify Account"<<endl<<endl;
-        cout<<"\t\t\t\t\t3. Change Password"<<endl<<endl;
-        cout<<"\t\t\t\t\t4. Delete Account"<<endl<<endl;
-        cout<<"\t\t\t\t\t5. Logout"<<endl;
-        char option;
-        cout<<endl<<"\t\t\t\t\t-> ";
-        cin>>option;
-        switch(option)
-        {
-        case '1':
-            details();
-            break;
-        case '2':
-            modify();
-            break;
-        case '3':
-            change_password();
-        case '4':
-            delete_account();
-        case '5':
-            {
-                logout();
-            }
-        default:
-            cout<<"\t\t\t\t\tInvalid Option\n\t\t\t\t\tTry Again."<<endl;
-            Sleep(636);
-            menu();
-        }
-    }
-void login_system::details()
+
+// -------------------- HOMEPAGE --------------------
+void PortalSystem::homepage()
 {
     system("cls");
-    cout<<"\n\t\t\t\t ___________________________________________\n";
-    cout<<"\t\t\t\t|                                           |";
-    cout<<"\n\t\t\t\t|              ACCOUNT DETAILS              |"<<endl;
-    cout<<"\t\t\t\t|___________________________________________|"<<endl<<endl;
-    fstream file;
-    file.open("files", ios::in);
-    file>>fname>>password>>number>>email>>date>>month>>year;
-    string dec_password=decrypt(password);
-    while(!file.eof())
-    {
-        if(name == fname && dec_password == pass)
-        {
-            Sleep(66);
-            cout<<endl<<"\t\t\t\t\t1. User_Name = "<<fname<<endl<<endl;
-            Sleep(66);
-            cout<<"\t\t\t\t\t2. Email = "<<email<<endl<<endl;
-            Sleep(66);
-            cout<<"\t\t\t\t\t3. Contact = "<<number<<endl<<endl;
-            Sleep(66);
-            cout<<"\t\t\t\t\t4. Date of Birth = "<<date<<"/"<<month<<"/"<<year<<endl<<endl;
-            Sleep(66);
-            cout<<"\t\t\t\t\t5. Account Password = "<<dec_password<<endl<<endl;
-            break;
-        }
-        file>>fname>>password>>number>>email>>date>>month>>year;
-        dec_password=decrypt(password);
-    }
-    file.close();
-    cout<<"\t\t\t\t\t";
-    system("pause");
-    menu();
-}
-void login_system::modify()
-{
-    system("cls");
-    cout<<"\n\t\t\t\t ___________________________________________\n";
-    cout<<"\t\t\t\t|                                           |";
-    cout<<"\n\t\t\t\t|              MODIFY ACCOUNT               |"<<endl;
-    cout<<"\t\t\t\t|___________________________________________|"<<endl<<endl;
-    fstream file, file1;
-    file.open("files", ios::in);
-    file1.open("modify", ios::app | ios::out);
-    file>>fname>>password>>number>>email>>date>>month>>year;
-    string dec_password=decrypt(password);
-    while(!file.eof())
-    {
-        if(name == fname && pass == dec_password)
-        {
-            char ch;
-            naam:
-                cout<<"\t\t\t\t\tWanna change User Name?\n\t\t\t\t\t[Y|N]: ";
-                cin>>ch;
-                if(ch=='Y'||ch=='y')
-                {
-                    cout<<"\t\t\t\t\tEnter New User Name: "<<endl<<"\t\t\t\t\t";
-                    cin>>fname;
-                }
-                else if(ch=='N'||ch=='n')
-                    fname=name;
-                else
-                {
-                    cout<<"\t\t\t\t\tChoose Properly!"<<endl<<endl;
-                    goto naam;
-                }
-            cout<<"\t\t\t\t\tWanna change DoB?\n\t\t\t\t\t[Y|N]: ";
-            dob:
-                cin>>ch;
-                if(ch=='Y'||ch=='y')
-                {
-                    cout<<endl<<"\t\t\t\t\tEnter your Date of Birth:"<<endl;
-                    dobd:
-                        int d;
-                        cout<<"\t\t\t\t\tDay : ";
-                        cin>>d;
-                        if(d<1||d>31)
-                        {
-                            cout<<"\t\t\t\t\tReminder: You are a Human! Enter a valid Day."<<endl;
-                            goto dobd;
-                        }
-                        else
-                        {
-                            date=to_string(d);
-                        }
-                    dobm:
-                        int m;
-                        cout<<"\t\t\t\t\tMonth : ";
-                        cin>>m;
-                        if(m<1||m>12)
-                        {
-                            cout<<"\t\t\t\t\tReminder: You are a Human! Enter a valid Month."<<endl<<endl;
-                            goto dobm;
-                        }
-                        else if(d>29 && m==2)
-                        {
-                            cout<<"\t\t\t\t\tReminder: Are you sure you born in Feb?\n\t\t\t\t\tRewrite your DOB"<<endl<<endl;
-                            goto dobd;
-                        }
-                        else
-                        {
-                            month=to_string(m);
-                        }
-                    doby:
-                        int y;
-                        cout<<"\t\t\t\t\tYear :  ";
-                        cin>>y;
-                        if(y<1950||y>2024)
-                        {
-                            cout<<"\t\t\t\t\tReminder: You are a Human! Enter a valid Year.\n\t\t\t\t\tLet's Begin Again!"<<endl<<endl;
-                            goto doby;
-                        }
-                        else if(!isLeap(y)&&m==2&&d>28)
-                        {
-                            cout<<"\t\t\t\t\tReminder: You are a Human! Be logical.\n\t\t\t\t\tLet's Begin Again!"<<endl<<endl;
-                            goto dobd;
-                        }
-                        else
-                        {
-                            year=to_string(y);
-                        }
-                }
-                else if(ch=='N'||ch=='n'){}
-                else
-                {
-                    cout<<"\t\t\t\t\tChoose Properly!"<<endl<<endl;
-                    goto dob;
-                }
-            cout<<"\t\t\t\t\tWanna change Mobile Number?\n\t\t\t\t\t[Y|N]: ";
-            mob:
-                cin>>ch;
-                if(ch=='Y'||ch=='y')
-                {
-                    cout<<"\t\t\t\t\tEnter Country Code : ";
-                    cin>>number;
-                    num:
-                        string digit;
-                        cout<<"\t\t\t\t\tEnter Mobile Number : ";
-                        cin>>digit;
-                        if(digit.length()!=10)
-                        {
-                        cout<<"\t\t\t\t\tEntered "<<digit.length()<<" Digits. Expecting 10, try again!"<<endl<<endl;
-                        goto num;
-                        }
-                        else if(!validNum(digit))
-                        {
-                            cout<<"\t\t\t\t\tPlease enter a valid phone number!"<<endl<<endl;
-                            goto num;
-                        }
-                        else
-                        {
-                            number+=digit;
-                        }
-                }
-                else if(ch=='N'||ch=='n'){}
-                else
-                {
-                    cout<<"\t\t\t\t\tChoose Properly!"<<endl<<endl;
-                    goto mob;
-                }
-            cout<<"\t\t\t\t\t\nWanna change Email?\n\t\t\t\t\t[Y|N]: ";
-            em:
-                cin>>ch;
-                if(ch=='Y'||ch=='y')
-                {
-                    mail:
-                        cout<<endl<<"\t\t\t\t\tEnter Email Address: "<<endl<<"\t\t\t\t\t";
-                        cin>>email;
-                        if(!validMail(email))
-                        {
-                            cout<<"\t\t\t\t\tPlease Re-enter a Valid Email Address"<<endl<<endl;
-                            goto mail;
-                        }
-                }
-                else if(ch!='N'||ch!='n'){}
-                else
-                {
-                    cout<<"\t\t\t\t\tChoose Properly!"<<endl<<endl;
-                    goto em;
-                }
-            file1<<fname<<" "<<password<<" "<<number<<" "<<email<<" "<<date<<" "<<month<<" "<<year<<"\n";
-        }
-        else
-        {
-            file1<<fname<<" "<<password<<" "<<number<<" "<<email<<" "<<date<<" "<<month<<" "<<year<<"\n";
-        }
-        file>>fname>>password>>number>>email>>date>>month>>year;
-        dec_password=decrypt(password);
-    }
-    cout<<endl<<"\t\t\t\t\tSaving new details, Please wait . . ."<<endl<<"\t\t\t\t\t";
-    waiting();
-    file.close();
-    file1.close();
-    remove("files");
-    rename("modify", "files");
-    cout<<endl<<"\n\t\t\t\t\tAccount Details Saved Successfully."<<endl;
-    cout<<"\t\t\t\t\tChanges will be shown after Re-login."<<endl<<"\n\t\t\t\t\t";
-    system("pause");
-    logout();
-}
-void login_system::change_password()
-{
-    system("cls");
-    cout<<"\n\t\t\t\t ___________________________________________\n";
-    cout<<"\t\t\t\t|                                           |";
-    cout<<"\n\t\t\t\t|              CHANGE PASSWORD              |"<<endl;
-    cout<<"\t\t\t\t|___________________________________________|"<<endl<<endl;
-    string oldpass, newpass, confirmpass;
-    cout<<"\t\t\t\t\tEnter your Old Password: ";
-    cin>>oldpass;
-    if(oldpass == pass)
-    {
-        cout<<endl<<"\t\t\t\t\tEnter New Password: ";
-        cin>>newpass;
-        if(newpass == oldpass)
-        {
-            cout<<endl<<"\t\t\t\t\tOld and New Password can't be same.";
-        }
-        else
-        {
-            cout<<endl<<"\t\t\t\t\tConfirm New Password: ";
-            cin>>confirmpass;
-            if(confirmpass != newpass)
-            {
-                cout<<endl<<"\t\t\t\t\tError! Password mismatch."<<endl<<"\t\t\t\t\tPlease try again.";
-                Sleep(636);
-                change_password();
-            }
-            else
-            {
-                newpass=encryption(newpass);
-                fstream file, file1;
-                file.open("files", ios::in);
-                file1.open("modify", ios::app | ios::out);
-                file>>fname>>password>>number>>email>>date>>month>>year;
-                while(!file.eof())
-                {
-                    if(name == fname && pass == oldpass)
-                    {
-                        file1<<fname<<" "<<newpass<<" "<<number<<" "<<email<<" "<<date<<" "<<month<<" "<<year<<"\n";
-                    }
-                    else
-                    {
-                        file1<<fname<<" "<<password<<" "<<number<<" "<<email<<" "<<date<<" "<<month<<" "<<year<<"\n";
-                    }
-                    file>>fname>>password>>number>>email>>date>>month>>year;
-                }
-                cout<<endl<<"\t\t\t\t\tChanging Password, Please wait . . ."<<endl<<"\t\t\t\t\t";
-                waiting();
-                cout<<endl<<"\n\t\t\t\t\tPassword changed successfully."<<endl;
-                cout<<endl<<"\t\t\t\t\tChanges will be shown after Re-login."<<endl;
-                file.close();
-                file1.close();
-                remove("files");
-                rename("modify", "files");
-                logout();
-            }
-        }
-    }
+    cout << "\n\t     _________________________________\n";
+    cout << "\t    |       WELCOME TO EDUNEST PORTAL   |\n";
+    cout << "\t    |___________________________________|\n\n";
+    cout << "\t\t1. Create Account\n\t\t2. Login\n\t\t3. Exit\n\t\t-> ";
+    int x;
+    cin >> x;
+    if (x == 1)
+        createAccount();
+    else if (x == 2)
+        login();
+    else if (x == 3)
+        _exit(0);
     else
     {
-        cout<<endl<<"\t\t\t\t\tError! Wrong Password"<<endl;
+        cout << "Invalid option\n";
+        Sleep(500);
+        homepage();
     }
-    cout<<endl<<"\t\t\t\t\t";
-    system("pause");
-    menu();
 }
-void login_system::delete_account()
+
+// -------------------- CREATE ACCOUNT --------------------
+void PortalSystem::createAccount()
 {
     system("cls");
-    cout<<"\n\t\t\t\t ___________________________________________\n";
-    cout<<"\t\t\t\t|                                           |";
-    cout<<"\n\t\t\t\t|              DELETE ACCOUNT               |"<<endl;
-    cout<<"\t\t\t\t|___________________________________________|"<<endl<<endl;
-    cout<<"\t\t\t\t\tAre you sure want to delete account ?"<<endl;
-    cout<<"\t\t\t\t\tThis action can't be undone!"<<endl;
-    cout<<"\t\t\t\t\tY/N: ";
-    char x;
-    cin>>x;
-    if(x == 'y' || x == 'Y')
+    string name;
+    cout << "\n\tCREATE ACCOUNT\n";
+    cout << "Enter username (no spaces): ";
+    cin >> name;
+    loggedInUser = name;
+
+    cout << "Role (student/teacher): ";
+    cin >> role;
+    if (role != "student" && role != "teacher")
+        role = "student";
+
+    int d, m, y;
+    cout << "DOB (Day Month Year): ";
+    cin >> d >> m >> y;
+    date = to_string(d);
+    month = to_string(m);
+    year = to_string(y);
+
+    cout << "Email: ";
+    cin >> email;
+    while (!validMail(email))
     {
-        fstream file, file1;
-        file.open("files", ios::in);
-        file1.open("modify", ios::app | ios::out);
-        file>>fname>>password>>number>>email>>date>>month>>year;
-        string dec_password=decrypt(password);
-        while(!file.eof())
+        cout << "Invalid email. Enter again: ";
+        cin >> email;
+    }
+
+    cout << "Mobile Number: ";
+    cin >> number;
+
+    string password;
+    char ch;
+    cout << "Password: ";
+    password = "";
+    ch = _getch();
+    while (ch != 13)
+    {
+        password.push_back(ch);
+        cout << '*';
+        ch = _getch();
+    }
+    pass = password;
+    string enc = encryption(password);
+
+    fstream file("users.txt", ios::app);
+    file << name << " " << enc << " " << number << " " << email << " " << date << " " << month << " " << year << " " << role << "\n";
+    file.close();
+
+    // -------------------- Pre-fill marks and attendance for new student --------------------
+    if (role == "student")
+    {
+        fstream mfile("marks.txt", ios::app);
+        fstream afile("attendance.txt", ios::app);
+        for (string &subj : defaultSubjects)
         {
-            if(name == fname && pass == dec_password)
-            {
-//                file>>fname>>password>>number>>email>>date>>month>>year;
-            }
-            else
-            {
-                file1<<fname<<" "<<password<<" "<<number<<" "<<email<<" "<<date<<" "<<month<<" "<<year<<"\n";
-            }
-            file>>fname>>password>>number>>email>>date>>month>>year;
-            dec_password=decrypt(password);
+            mfile << name << " " << subj << " " << 0 << "\n"; // 0 marks
+            afile << name << " " << subj << " " << 0 << "\n"; // 0% attendance
         }
-        cout<<endl<<"\t\t\t\t\tDeleting Account . . ."<<endl<<"\t\t\t\t\t";
-        waiting();
-        cout<<endl<<"\n\t\t\t\t\tAccount Deleted Successfully."<<endl;
-        cout<<endl<<"\t\t\t\t\tLogging you out . . ."<<endl<<"\t\t\t\t\t";
-        waiting();
-        file.close();
-        file1.close();
-        remove("files");
-        rename("modify", "files");
-        logout();
+        mfile.close();
+        afile.close();
     }
-    else if(x == 'N' || x == 'n')
-    {
-        cout<<endl<<"\t\t\t\t\tTaking you back to Main Menu"<<endl<<"\t\t\t\t\t";
-        waiting();
-        Sleep(636);
-        menu();
-    }
-    else
-    {
-        cout<<"\t\t\t\t\tPlease select a valid option."<<endl;
-        system("pause");
-        delete_account();
-    }
-}
-void login_system::logout()
-{
-    fname=""; password=""; name=""; pass=""; date="";
-    month=""; year=""; email=""; number=""; enc="";
-    cout<<"\n\t\t\t\t\tLogging Out . . ."<<endl<<"\t\t\t\t\t";
-    waiting();
+    // -------------------------------------------------------------------
+
+    cout << "\nAccount Created Successfully.\n";
+    system("pause");
     homepage();
 }
+
+// -------------------- LOGIN --------------------
+void PortalSystem::login()
+{
+    system("cls");
+    cout << "\nLOGIN PAGE\n";
+    string name;
+    cout << "Username: ";
+    cin >> name;
+
+    cout << "Password: ";
+    pass = "";
+    char ch = _getch();
+
+    while (ch != 13)
+    { // Enter key
+        if (ch == 8)
+        { // Backspace
+            if (!pass.empty())
+            {
+                pass.pop_back();
+                cout << "\b \b";
+            }
+        }
+        else
+        {
+            pass.push_back(ch);
+            cout << '*';
+        }
+        ch = _getch();
+    }
+
+    ifstream file("users.txt");
+    if (!file)
+    {
+        cout << "No users found. Create account first.\n";
+        system("pause");
+        homepage();
+        return;
+    }
+
+    string line;
+    bool flag = false;
+    while (getline(file, line))
+    {
+        stringstream ss(line);
+        string f, p_enc, num, mail, dd, mm, yy, r;
+        ss >> f >> p_enc >> num >> mail >> dd >> mm >> yy >> r;
+
+        // compare decrypted password
+        if (f == name && decrypt(p_enc) == pass)
+        {
+            loggedInUser = f;
+            number = num;
+            email = mail;
+            date = dd;
+            month = mm;
+            year = yy;
+            role = r;
+            flag = true;
+            break;
+        }
+    }
+    file.close();
+
+    cout << "Verifying";
+    waiting();
+    if (flag)
+    {
+        cout << "Login Successful!\n";
+        Sleep(500);
+        if (role == "student")
+            studentMenu();
+        else
+            teacherMenu();
+    }
+    else
+    {
+        cout << "Invalid credentials\n";
+        system("pause");
+        homepage();
+    }
+}
+
+// -------------------- STUDENT MENU --------------------
+void PortalSystem::studentMenu()
+{
+    system("cls");
+    cout << "\nWelcome Student: " << loggedInUser << "\n";
+    cout << "1. View Marks\n2. View Attendance\n3. Change Password\n4. Account Details\n5. Download Report\n6. Logout\n-> ";
+    int opt;
+    cin >> opt;
+    switch (opt)
+    {
+    case 1:
+        viewMarks();
+        break;
+    case 2:
+        viewAttendance();
+        break;
+    case 3:
+        changePassword();
+        break;
+    case 4:
+        details();
+        break;
+    case 5:
+        generateReport();
+        break;
+    case 6:
+        logout();
+        break;
+    default:
+        studentMenu();
+    }
+}
+
+// -------------------- TEACHER MENU --------------------
+void PortalSystem::teacherMenu()
+{
+    system("cls");
+    cout << "\nWelcome Teacher: " << loggedInUser << "\n";
+    cout << "1. Enter/Update Marks\n2. Delete Marks Entry\n3. View All Marks\n";
+    cout << "4. Manage Attendance\n5. Delete Attendance Entry\n6. Search Student\n";
+    cout << "7. Change Password\n8. Account Details\n9. Generate Class Report\n10. Logout\n-> ";
+    int opt;
+    cin >> opt;
+    switch (opt)
+    {
+    case 1:
+        updateMarks();
+        break;
+    case 2:
+        deleteMarks();
+        break;
+    case 3:
+        viewMarks();
+        break;
+    case 4:
+        manageAttendance();
+        break;
+    case 5:
+        deleteAttendance();
+        break;
+    case 6:
+        searchStudent();
+        break;
+    case 7:
+        changePassword();
+        break;
+    case 8:
+        details();
+        break;
+    case 9:
+        generateReport();
+        break;
+    case 10:
+        logout();
+        break;
+    default:
+        teacherMenu();
+    }
+}
+
+// -------------------- ACCOUNT FUNCTIONS --------------------
+void PortalSystem::details()
+{
+    system("cls");
+    cout << "\nAccount Details\nUsername: " << loggedInUser << "\nEmail: " << email;
+    cout << "\nContact: " << number << "\nDOB: " << date << "/" << month << "/" << year;
+    cout << "\nRole: " << role << "\nPassword: " << pass << "\n";
+    system("pause");
+    role == "student" ? studentMenu() : teacherMenu();
+}
+
+void PortalSystem::changePassword()
+{
+    system("cls");
+    string oldpass, newpass, conf;
+    cout << "Old password: ";
+    cin >> oldpass;
+    if (oldpass == pass)
+    {
+        cout << "New password: ";
+        cin >> newpass;
+        cout << "Confirm new password: ";
+        cin >> conf;
+        if (newpass == conf)
+        {
+            fstream file("users.txt", ios::in);
+            fstream temp("temp.txt", ios::out);
+            string f, p, num, mail, dd, mm, yy, r;
+            while (file >> f >> p >> num >> mail >> dd >> mm >> yy >> r)
+            {
+                if (f == loggedInUser)
+                    temp << f << " " << encryption(newpass) << " " << num << " " << mail << " " << dd << " " << mm << " " << yy << " " << r << "\n";
+                else
+                    temp << f << " " << p << " " << num << " " << mail << " " << dd << " " << mm << " " << yy << " " << r << "\n";
+            }
+            file.close();
+            temp.close();
+            remove("users.txt");
+            rename("temp.txt", "users.txt");
+            cout << "Password changed. Login again.\n";
+            system("pause");
+            logout();
+        }
+        else
+        {
+            cout << "Mismatch. Try again.\n";
+            system("pause");
+            changePassword();
+        }
+    }
+    else
+    {
+        cout << "Wrong password. Try again.\n";
+        system("pause");
+        changePassword();
+    }
+}
+
+void PortalSystem::logout()
+{
+    password = email = number = role = date = month = year = pass = "";
+    loggedInUser = "";
+    cout << "Logging out";
+    waiting(6);
+    homepage();
+}
+
+// -------------------- MARKS --------------------
+void PortalSystem::viewMarks()
+{
+    system("cls");
+    fstream file("marks.txt", ios::in);
+    if (!file)
+    {
+        cout << "No marks recorded.\n";
+        system("pause");
+        role == "student" ? studentMenu() : teacherMenu();
+        return;
+    }
+    string uname, subj;
+    int mk;
+    bool found = false;
+    cout << "---- Marks ----\n";
+    while (file >> uname >> subj >> mk)
+    {
+        if (role == "student" && uname == loggedInUser)
+        {
+            cout << subj << " : " << mk << "\n";
+            found = true;
+        }
+        else if (role == "teacher")
+        {
+            cout << uname << " | " << subj << " : " << mk << "\n";
+            found = true;
+        }
+    }
+    file.close();
+    if (!found)
+        cout << "No marks found.\n";
+    system("pause");
+    role == "student" ? studentMenu() : teacherMenu();
+}
+
+void PortalSystem::updateMarks()
+{
+    string uname, subj;
+    int mk;
+    cout << "Student username: ";
+    cin >> uname;
+    cout << "Subject: ";
+    cin >> subj;
+    cout << "Marks: ";
+    cin >> mk;
+    fstream file("marks.txt", ios::in);
+    vector<tuple<string, string, int>> rows;
+    bool updated = false;
+    if (file)
+    {
+        string u, s;
+        int m;
+        while (file >> u >> s >> m)
+        {
+            if (u == uname && s == subj)
+            {
+                rows.emplace_back(u, s, mk);
+                updated = true;
+            }
+            else
+                rows.emplace_back(u, s, m);
+        }
+        file.close();
+    }
+    if (!updated)
+        rows.emplace_back(uname, subj, mk);
+    fstream out("marks.txt", ios::out);
+    for (auto &t : rows)
+        out << get<0>(t) << " " << get<1>(t) << " " << get<2>(t) << "\n";
+    out.close();
+    cout << (updated ? "Marks updated.\n" : "Marks added.\n");
+    system("pause");
+    teacherMenu();
+}
+
+// -------------------- ATTENDANCE --------------------
+void PortalSystem::viewAttendance()
+{
+    system("cls");
+    fstream file("attendance.txt", ios::in);
+    if (!file)
+    {
+        cout << "No attendance recorded.\n";
+        system("pause");
+        role == "student" ? studentMenu() : teacherMenu();
+        return;
+    }
+    string uname, subj;
+    int att;
+    bool found = false;
+    cout << "---- Attendance ----\n";
+    while (file >> uname >> subj >> att)
+    {
+        if (role == "student" && uname == loggedInUser)
+        {
+            cout << subj << " : " << att << "%\n";
+            found = true;
+        }
+        else if (role == "teacher")
+        {
+            cout << uname << " | " << subj << " : " << att << "%\n";
+            found = true;
+        }
+    }
+    file.close();
+    if (!found)
+        cout << "No attendance found.\n";
+    system("pause");
+    role == "student" ? studentMenu() : teacherMenu();
+}
+
+void PortalSystem::manageAttendance()
+{
+    string uname, subj;
+    int att;
+    cout << "Student username: ";
+    cin >> uname;
+    cout << "Subject: ";
+    cin >> subj;
+    cout << "Attendance %: ";
+    cin >> att;
+    fstream file("attendance.txt", ios::in);
+    vector<tuple<string, string, int>> rows;
+    bool updated = false;
+    if (file)
+    {
+        string u, s;
+        int a;
+        while (file >> u >> s >> a)
+        {
+            if (u == uname && s == subj)
+            {
+                rows.emplace_back(u, s, att);
+                updated = true;
+            }
+            else
+                rows.emplace_back(u, s, a);
+        }
+        file.close();
+    }
+    if (!updated)
+        rows.emplace_back(uname, subj, att);
+    fstream out("attendance.txt", ios::out);
+    for (auto &t : rows)
+        out << get<0>(t) << " " << get<1>(t) << " " << get<2>(t) << "\n";
+    out.close();
+    cout << (updated ? "Updated!\n" : "Added!\n");
+    system("pause");
+    teacherMenu();
+}
+
+// -------------------- DELETE --------------------
+void PortalSystem::deleteMarks()
+{
+    string uname, subj;
+    cout << "Student username: ";
+    cin >> uname;
+    cout << "Subject: ";
+    cin >> subj;
+    fstream file("marks.txt", ios::in);
+    if (!file)
+    {
+        cout << "No marks file.\n";
+        system("pause");
+        teacherMenu();
+        return;
+    }
+    fstream temp("temp.txt", ios::out);
+    string u, s;
+    int m;
+    bool deleted = false;
+    while (file >> u >> s >> m)
+    {
+        if (u == uname && s == subj)
+        {
+            deleted = true;
+            continue;
+        }
+        temp << u << " " << s << " " << m << "\n";
+    }
+    file.close();
+    temp.close();
+    remove("marks.txt");
+    rename("temp.txt", "marks.txt");
+    cout << (deleted ? "Deleted.\n" : "No matching entry.\n");
+    system("pause");
+    teacherMenu();
+}
+
+void PortalSystem::deleteAttendance()
+{
+    string uname, subj;
+    cout << "Student username: ";
+    cin >> uname;
+    cout << "Subject: ";
+    cin >> subj;
+    fstream file("attendance.txt", ios::in);
+    if (!file)
+    {
+        cout << "No attendance file.\n";
+        system("pause");
+        teacherMenu();
+        return;
+    }
+    fstream temp("temp.txt", ios::out);
+    string u, s;
+    int a;
+    bool deleted = false;
+    while (file >> u >> s >> a)
+    {
+        if (u == uname && s == subj)
+        {
+            deleted = true;
+            continue;
+        }
+        temp << u << " " << s << " " << a << "\n";
+    }
+    file.close();
+    temp.close();
+    remove("attendance.txt");
+    rename("temp.txt", "attendance.txt");
+    cout << (deleted ? "Deleted.\n" : "No matching entry.\n");
+    system("pause");
+    teacherMenu();
+}
+
+// -------------------- SEARCH STUDENT --------------------
+void PortalSystem::searchStudent()
+{
+    string uname;
+    cout << "Student username: ";
+    cin >> uname;
+    fstream file("users.txt", ios::in);
+    if (!file)
+    {
+        cout << "No users.\n";
+        system("pause");
+        teacherMenu();
+        return;
+    }
+    string f, p, num, mail, dd, mm, yy, r;
+    bool found = false;
+    while (file >> f >> p >> num >> mail >> dd >> mm >> yy >> r)
+    {
+        if (f == uname)
+        {
+            cout << "Username: " << f << "\nEmail: " << mail << "\nContact: " << num << "\nDOB: " << dd << "/" << mm << "/" << yy << "\nRole: " << r << "\n";
+            found = true;
+            break;
+        }
+    }
+    file.close();
+    if (!found)
+        cout << "No student found.\n";
+    system("pause");
+    teacherMenu();
+}
+
+// -------------------- REPORT --------------------
+void PortalSystem::generateReport()
+{
+    if (role == "student")
+    {
+        system("cls");
+        cout << "\nStudent Report for " << loggedInUser << "\n\n";
+        fstream mfile("marks.txt");
+        fstream afile("attendance.txt");
+        string u, subj;
+        int mk, att;
+        bool found = false;
+        while (mfile >> u >> subj >> mk)
+        {
+            if (u == loggedInUser)
+            {
+                cout << subj << " Marks: " << mk << "\n";
+                found = true;
+            }
+        }
+        while (afile >> u >> subj >> att)
+        {
+            if (u == loggedInUser)
+            {
+                cout << subj << " Attendance: " << att << "%\n";
+                found = true;
+            }
+        }
+        mfile.close();
+        afile.close();
+        if (!found)
+            cout << "No records yet.\n";
+        system("pause");
+        studentMenu();
+    }
+    else
+    {
+        ifstream users("users.txt");
+        if (!users)
+        {
+            cout << "No users.\n";
+            system("pause");
+            teacherMenu();
+            return;
+        }
+        string f, p, num, mail, dd, mm, yy, r;
+        vector<string> students;
+        while (users >> f >> p >> num >> mail >> dd >> mm >> yy >> r)
+            if (r == "student")
+                students.push_back(f);
+        users.close();
+
+        unordered_map<string, vector<int>> marks_map;
+        ifstream mfile("marks.txt");
+        string u, subj;
+        int mk;
+        while (mfile >> u >> subj >> mk)
+            marks_map[u].push_back(mk);
+        mfile.close();
+
+        unordered_map<string, vector<int>> att_map;
+        ifstream afile("attendance.txt");
+        int att;
+        while (afile >> u >> subj >> att)
+            att_map[u].push_back(att);
+        afile.close();
+
+        ofstream out("class_report.txt");
+        out << "Class Report\n\n";
+        for (auto &s : students)
+        {
+            out << "Student: " << s << "\n";
+            if (marks_map.count(s))
+            {
+                double sum = 0;
+                for (int v : marks_map[s])
+                    sum += v;
+                out << " Avg Marks: " << fixed << setprecision(2) << sum / marks_map[s].size() << "\n";
+            }
+            else
+                out << " Avg Marks: N/A\n";
+            if (att_map.count(s))
+            {
+                double sum = 0;
+                for (int v : att_map[s])
+                    sum += v;
+                out << " Avg Attendance: " << fixed << setprecision(2) << sum / att_map[s].size() << "%\n";
+            }
+            else
+                out << " Avg Attendance: N/A\n";
+            out << "\n";
+        }
+        out.close();
+        cout << "Class report saved.\n";
+        system("pause");
+        teacherMenu();
+    }
+}
+
+// -------------------- MAIN --------------------
 int main()
 {
-    login_system x;
-    x.homepage();
+    PortalSystem portal;
+    portal.homepage();
     return 0;
 }
