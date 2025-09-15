@@ -55,5 +55,5 @@ User, marks, and attendance data are stored in text files:
 ![Student Menu](images/student_menu.png)
 
 ### Teacher Menu
-![Teacher Menu](images/teacher_menu.png)
+![Teacher Menu](https://github.com/Sinchan-Hampannavar/EduTrack-System/blob/main/Screenshot%202025-09-15%20154933.png)
 
