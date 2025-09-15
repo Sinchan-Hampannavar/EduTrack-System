@@ -49,10 +49,10 @@ User, marks, and attendance data are stored in text files:
 ## Screenshots
 
 ### Homepage
-![Homepage](images/homepage.png)
+![Homepage](https://github.com/Sinchan-Hampannavar/EduTrack-System/blob/main/Screenshot%202025-09-15%20154800.png)
 
 ### Student Menu
-![Student Menu](images/student_menu.png)
+![Student Menu](https://github.com/Sinchan-Hampannavar/EduTrack-System/blob/main/Screenshot%202025-09-15%20154847.png)
 
 ### Teacher Menu
 ![Teacher Menu](https://github.com/Sinchan-Hampannavar/EduTrack-System/blob/main/Screenshot%202025-09-15%20154933.png)
