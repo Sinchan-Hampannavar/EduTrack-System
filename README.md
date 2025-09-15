@@ -1,4 +1,4 @@
-# EduTrack
+# EduTrack System
 
 EduTrack is a **student and course management system** built with C++ that implements **Object-Oriented Programming (OOP) concepts**. It allows students and teachers to **manage courses, marks, and attendance efficiently** through a secure login system.
 
