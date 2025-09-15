@@ -16,7 +16,7 @@ EduTrack is a **student and course management system** built with C++ that imple
 - **View Attendance:** See attendance percentages per subject.  
 - **Generate Report:** Download personal report of marks and attendance.  
 - **Change Password:** Securely update account password.  
-- **Account Details:** View personal information including email, contact, and DOB.  
+- **Account Details:** View personal information including email, contact, and DOB. 
 
 ### Teacher Features
 - **Add/Update Marks:** Enter or modify marks for students.  
